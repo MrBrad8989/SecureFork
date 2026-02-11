@@ -1,0 +1,36 @@
+<!-- Configuración de ejecución para IntelliJ IDEA -->
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Cliente GUI (JavaFX)" type="Application" factoryName="Application">
+    <option name="ALTERNATIVE_JRE_PATH" value="25" />
+    <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+    <option name="MAIN_CLASS_NAME" value="com.refork.gui.ClienteGUIApp" />
+    <module name="ServidorSeguroFork" />
+    <option name="VM_PARAMETERS" value="--module-path ${PATH_TO_FX} --add-modules javafx.controls,javafx.fxml" />
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="com.refork.gui.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+
+  <configuration default="false" name="Servidor SSL" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="com.refork.server.ServidorSSL" />
+    <module name="ServidorSeguroFork" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+
+  <configuration default="false" name="Cliente Consola" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="com.refork.client.ClienteSSL" />
+    <module name="ServidorSeguroFork" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
+
