@@ -2,144 +2,80 @@ package com.refork.gui;
 
 import javafx.application.Application;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.*;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
 public class ClienteGUIApp extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        primaryStage.setTitle("SecureFork - Cliente SSH Seguro");
+        primaryStage.setTitle("SecureFork - Cliente GUI (mínimo)");
 
-        // Panel de conexión
-        VBox panelConexion = crearPanelConexion(primaryStage);
+        // Formulario de conexión
+        GridPane form = new GridPane();
+        form.setHgap(10);
+        form.setVgap(10);
+        form.setPadding(new Insets(10));
 
-        Scene scene = new Scene(panelConexion, 500, 400);
+        TextField hostField = new TextField("localhost");
+        TextField portField = new TextField("5555");
+        TextField userField = new TextField("admin");
+        PasswordField passField = new PasswordField();
+        passField.setText("1234");
 
-        // Cargar CSS si existe
-        try {
-            var cssResource = getClass().getResource("/styles.css");
-            if (cssResource != null) {
-                scene.getStylesheets().add(cssResource.toExternalForm());
+        form.add(new Label("Host:"), 0, 0);
+        form.add(hostField, 1, 0);
+        form.add(new Label("Puerto:"), 0, 1);
+        form.add(portField, 1, 1);
+        form.add(new Label("Usuario:"), 0, 2);
+        form.add(userField, 1, 2);
+        form.add(new Label("Contraseña:"), 0, 3);
+        form.add(passField, 1, 3);
+
+        Button connectBtn = new Button("Conectar");
+
+        HBox actions = new HBox(8, connectBtn);
+        actions.setPadding(new Insets(0, 0, 10, 10));
+
+        // Área de terminal (solo demo)
+        TextArea terminalArea = new TextArea();
+        terminalArea.setEditable(false);
+        terminalArea.setFont(Font.font("Monospaced", 12));
+        terminalArea.setPrefRowCount(20);
+
+        TextField inputField = new TextField();
+        inputField.setPromptText("Escribe un comando y pulsa Enter (demo)");
+
+        inputField.setOnAction(evt -> {
+            String cmd = inputField.getText();
+            if (cmd != null && !cmd.isBlank()) {
+                terminalArea.appendText("$ " + cmd + "\n");
+                terminalArea.appendText("(respuesta demo) Ejecutado: " + cmd + "\n\n");
+                inputField.clear();
             }
-        } catch (Exception ex) {
-            System.out.println("⚠️ No se pudo cargar styles.css, usando estilos por defecto");
-        }
-
-        primaryStage.setScene(scene);
-        primaryStage.show();
-    }
-
-    private VBox crearPanelConexion(Stage stage) {
-        VBox panel = new VBox(15);
-        panel.setPadding(new Insets(30));
-        panel.setAlignment(Pos.CENTER);
-        panel.getStyleClass().add("panel-conexion");
-
-        Label titulo = new Label("🔐 Conexión Segura SSH");
-        titulo.getStyleClass().add("titulo");
-
-        // Campos de entrada
-        GridPane grid = new GridPane();
-        grid.setHgap(10);
-        grid.setVgap(15);
-        grid.setAlignment(Pos.CENTER);
-
-        Label lblHost = new Label("Host:");
-        TextField txtHost = new TextField("localhost");
-        txtHost.setPromptText("Dirección del servidor");
-
-        Label lblPuerto = new Label("Puerto:");
-        TextField txtPuerto = new TextField("5555");
-        txtPuerto.setPromptText("Puerto SSL");
-
-        Label lblUsuario = new Label("Usuario:");
-        TextField txtUsuario = new TextField("admin");
-        txtUsuario.setPromptText("Nombre de usuario");
-
-        Label lblPassword = new Label("Contraseña:");
-        PasswordField txtPassword = new PasswordField();
-        txtPassword.setText("1234");
-        txtPassword.setPromptText("Contraseña");
-
-        grid.add(lblHost, 0, 0);
-        grid.add(txtHost, 1, 0);
-        grid.add(lblPuerto, 0, 1);
-        grid.add(txtPuerto, 1, 1);
-        grid.add(lblUsuario, 0, 2);
-        grid.add(txtUsuario, 1, 2);
-        grid.add(lblPassword, 0, 3);
-        grid.add(txtPassword, 1, 3);
-
-        Button btnConectar = new Button("Conectar");
-        btnConectar.getStyleClass().add("btn-primary");
-        btnConectar.setDefaultButton(true);
-
-        Label lblEstado = new Label("");
-        lblEstado.getStyleClass().add("estado");
-
-        btnConectar.setOnAction(e -> {
-            String host = txtHost.getText().trim();
-            int puerto;
-            try {
-                puerto = Integer.parseInt(txtPuerto.getText().trim());
-            } catch (NumberFormatException ex) {
-                lblEstado.setText("❌ Puerto inválido");
-                lblEstado.setStyle("-fx-text-fill: #e74c3c;");
-                return;
-            }
-            String usuario = txtUsuario.getText().trim();
-            String password = txtPassword.getText();
-
-            if (host.isEmpty() || usuario.isEmpty() || password.isEmpty()) {
-                lblEstado.setText("❌ Todos los campos son obligatorios");
-                lblEstado.setStyle("-fx-text-fill: #e74c3c;");
-                return;
-            }
-
-            lblEstado.setText("⏳ Conectando...");
-            lblEstado.setStyle("-fx-text-fill: #3498db;");
-            btnConectar.setDisable(true);
-
-            // Conectar en segundo plano
-            new Thread(() -> {
-                ConexionSSL conexion = new ConexionSSL(host, puerto, usuario, password);
-                boolean conectado = conexion.conectar();
-
-                javafx.application.Platform.runLater(() -> {
-                    if (conectado) {
-                        abrirTerminal(stage, conexion);
-                    } else {
-                        lblEstado.setText("❌ Error de conexión o credenciales incorrectas");
-                        lblEstado.setStyle("-fx-text-fill: #e74c3c;");
-                        btnConectar.setDisable(false);
-                    }
-                });
-            }).start();
         });
 
-        panel.getChildren().addAll(titulo, grid, btnConectar, lblEstado);
-        return panel;
-    }
+        connectBtn.setOnAction(evt -> {
+            terminalArea.appendText("Intentando conectar a " + hostField.getText() + ":" + portField.getText() + " como " + userField.getText() + "...\n");
+            terminalArea.appendText("(demo) Conexión simulada OK\n\n");
+        });
 
-    private void abrirTerminal(Stage stage, ConexionSSL conexion) {
-        TerminalView terminal = new TerminalView(conexion);
-        Scene scene = new Scene(terminal, 900, 650);
+        BorderPane root = new BorderPane();
+        root.setTop(form);
+        root.setCenter(terminalArea);
+        root.setBottom(inputField);
+        BorderPane.setMargin(form, new Insets(10));
+        BorderPane.setMargin(terminalArea, new Insets(10));
+        BorderPane.setMargin(inputField, new Insets(10));
 
-        // Cargar CSS si existe
-        try {
-            var cssResource = getClass().getResource("/styles.css");
-            if (cssResource != null) {
-                scene.getStylesheets().add(cssResource.toExternalForm());
-            }
-        } catch (Exception ex) {
-            System.out.println("⚠️ No se pudo cargar styles.css en terminal");
-        }
-
-        stage.setScene(scene);
+        Scene scene = new Scene(root, 700, 500);
+        primaryStage.setScene(scene);
+        primaryStage.show();
     }
 
     public static void main(String[] args) {

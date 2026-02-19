@@ -36,3 +36,25 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+### Node.js / Electron ###
+electron-client/node_modules/
+electron-client/dist/
+electron-client/dist-electron/
+electron-client/release/
+electron-client/package-lock.json
+node_modules/
+
+### Archivos sensibles ###
+*.p12
+*.jks
+*.pfx
+*.key
+*.pem
+
+### Logs ###
+*.log
+npm-debug.log*
+
+### IntelliJ extras ###
+.idea/discord.xml

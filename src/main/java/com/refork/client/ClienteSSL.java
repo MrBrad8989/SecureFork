@@ -31,10 +31,15 @@ public class ClienteSSL {
             DataOutputStream flujoSalida = new DataOutputStream(socket.getOutputStream());
             Scanner teclado = new Scanner(System.in);
 
-            // Leemos el mensaje de bienvenida ("LOGIN CORRECTO...")
-            // Si el login falla, el servidor cerrará el socket y esto dará error, lo cual es correcto.
+            // Leemos el mensaje de bienvenida ("LOGIN OK...")
+            // Si el login falla, el servidor enviará LOGIN_ERROR
             try {
-                System.out.println("SERVIDOR: " + flujoEntrada.readUTF());
+                String bienvenida = flujoEntrada.readUTF();
+                if (bienvenida.startsWith("LOGIN_ERROR::")) {
+                    System.err.println("❌ " + bienvenida.substring("LOGIN_ERROR::".length()));
+                    return;
+                }
+                System.out.println("SERVIDOR: " + bienvenida);
             } catch (EOFException e) {
                 System.err.println("❌ Login rechazado por el servidor.");
                 return;
@@ -49,10 +54,20 @@ public class ClienteSSL {
                 flujoSalida.writeUTF(comando);
 
                 if (comando.equalsIgnoreCase("exit")) {
+                    try {
+                        System.out.println("SERVIDOR: " + flujoEntrada.readUTF());
+                    } catch (EOFException e) {
+                        // Servidor cerró la conexión
+                    }
                     salir = true;
                 } else {
                     // LEEMOS RESPUESTA (Puede ser texto O un archivo)
                     String respuesta = flujoEntrada.readUTF();
+
+                    if ("CLEAR_SCREEN".equals(respuesta)) {
+                        System.out.println("\n\n\n\n\n\n\n\n\n\n");
+                        continue;
+                    }
 
                     // DETECTAMOS SI ES UNA DESCARGA DE ARCHIVO
                     if (respuesta.startsWith("ARCHIVO_VA::")) {
